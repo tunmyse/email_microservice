@@ -1,0 +1,101 @@
+version: '3.7'
+
+services:
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tunmyse/email_service
+    container_name: app
+    init: true
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    depends_on:
+        - mysql
+        - redis
+    networks:
+      - app-network
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    init: true
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./nginx/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  #MySQL Service
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    init: true
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root_secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - app-network
+      
+  #Redis Service
+  redis:
+    image: redis:alpine
+    container_name: redis
+    init: true
+    restart: unless-stopped
+    tty: true
+    ports:
+        - "${REDIS_PORT}:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - app-network
+
+  #Queue Worker Service
+  queue_worker:
+    image: tunmyse/email_service
+    container_name: queue_worker
+    init: true
+    restart: unless-stopped
+    tty: true
+    command: ["php", "artisan", "queue:work", "redis", "--timeout=60", "--sleep=5"]
+    depends_on:
+        - mysql
+        - redis
+    networks:
+      - app-network
+      
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+
+#Docker Volumes   
+volumes:
+  mysqldata:
+    driver: local
+  redisdata:
+    driver: local
