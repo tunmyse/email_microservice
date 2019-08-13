@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Email;
-use App\Services\EmailService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +13,7 @@ class EmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $email;
+    public $email;
     
     /**
      * Create a new job instance.
