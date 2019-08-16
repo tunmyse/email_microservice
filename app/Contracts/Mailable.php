@@ -20,6 +20,13 @@ interface Mailable
     public function getFrom();
     
     /**
+     * Get the reply email.
+     *
+     * @return string
+     */
+    public function getReplyTo();
+    
+    /**
      * Get the subject of the email.
      *
      * @return string
