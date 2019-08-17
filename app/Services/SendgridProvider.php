@@ -49,11 +49,10 @@ class SendgridProvider implements MailerProvider
         $this->options['json'] = $this->buildRequestParam($email);
         
         try {
-            $response = $this->client->request('POST', $this->endpoint, $this->options);
-            
+            $response = $this->client->request('POST', $this->endpoint, $this->options);  
             if ($response->getStatusCode() === 202) {
                 return true;
-            }
+        }
         } catch (GuzzleException $ex) {
         }
         
@@ -64,10 +63,12 @@ class SendgridProvider implements MailerProvider
     {
         $reqParams = [
             'personalizations' => [
-                'to' => [
-                    'email' => $email->getTo()
+                [
+                    'to' => [
+                        ['email' => $email->getTo()]
+                    ]
                 ]
-             ],
+            ],
             'from' => [
                 'email' => $email->getFrom()
             ],
@@ -75,13 +76,13 @@ class SendgridProvider implements MailerProvider
                 'email' => $email->getReplyTo()
             ],
             'subject' => $email->getSubject(),
-            'content' => [
-                'type' => 'text/'.$email->getFormat(),
-                'value' => $email->getBody()
-            ],
+            'content' => [[
+            'type' => 'text/' . $email->getFormat(),
+            'value' => $email->getBody()
+                ]],
             'custom_args' => ['app_message_id' => $email->getMessageId()]
         ];
-        
+
         return $reqParams;
     }
     

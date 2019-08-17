@@ -117,7 +117,7 @@ class SendgridProviderTest extends TestCase
     {
         $apiToken = "Bearer {$this->token}";
         
-        $this->client->shouldReceive('request')->withArgs(function ($method, $url, $options) use ($apiToken) {
+        $this->client->shouldReceive('request')->once()->withArgs(function ($method, $url, $options) use ($apiToken) {
             $credentials = $options['headers']['Authorization'];
             
             if ($credentials === $apiToken) {
@@ -137,7 +137,7 @@ class SendgridProviderTest extends TestCase
     {
         $data = $this->getRequestDataFromMailable($this->mailable);
         
-        $this->client->shouldReceive('request')->atLeast()->times(1)->withArgs(function ($method, $url, $options) use ($data) {
+        $this->client->shouldReceive('request')->once()->withArgs(function ($method, $url, $options) use ($data) {
             $reqData = $options['json'];
             
             if ($method == 'POST' && $url == 'https://api.sendgrid.com/v3/mail/send' && $reqData == $data) {
@@ -175,10 +175,12 @@ class SendgridProviderTest extends TestCase
     {
         $reqParams = [
             'personalizations' => [
-                'to' => [
-                    'email' => $email->getTo()
+                [
+                    'to' => [
+                        ['email' => $email->getTo()]
+                    ]
                 ]
-             ],
+            ],
             'from' => [
                 'email' => $email->getFrom()
             ],
@@ -187,12 +189,14 @@ class SendgridProviderTest extends TestCase
             ],
             'subject' => $email->getSubject(),
             'content' => [
-                'type' => 'text/'.$email->getFormat(),
-                'value' => $email->getBody()
+                [
+                    'type' => 'text/' . $email->getFormat(),
+                    'value' => $email->getBody()
+                ]
             ],
             'custom_args' => ['app_message_id' => $email->getMessageId()]
         ];
-        
+
         return $reqParams;
     }
 }
