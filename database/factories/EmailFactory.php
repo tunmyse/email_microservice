@@ -9,7 +9,6 @@ $factory->define(Email::class, function (Faker $faker) {
     return [
         'subject' => $faker->sentence,
         'body' => $faker->paragraph,
-        'format' => $faker->randomElement(['plain', 'html']),
-        'recipients' => $faker->safeEmail
+        'format' => $faker->randomElement(['plain', 'html'])
     ];
 });

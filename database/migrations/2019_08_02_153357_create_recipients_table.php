@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSendAttemptsTable extends Migration
+class CreateRecipientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateSendAttemptsTable extends Migration
      */
     public function up()
     {
-        Schema::create('send_attempts', function (Blueprint $table) {
+        Schema::create('recipients', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('email_id');
-            $table->string('status');
+            $table->string('address');
+            $table->string('status')->default('queued');
+            $table->string('provider')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ class CreateSendAttemptsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('send_attempts');
+        Schema::dropIfExists('recipients');
     }
 }
