@@ -6,12 +6,9 @@ use App\Services\MailerService;
 use App\Services\MailjetProvider;
 use App\Services\SendgridProvider;
 use GuzzleHttp\Client;
-use Illuminate\Queue\Events\JobProcessed;
-use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -63,5 +60,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
+        
+        Validator::extend('recipients', 'App\Rules\Recipients@validate');
+        Validator::replacer('recipients', 'App\Rules\Recipients@message');
     }
 }
