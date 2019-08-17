@@ -126,7 +126,7 @@ class MailjetProviderTest extends TestCase
         $apiUsername = $this->username;
         $apiPassword = $this->password;
         
-        $this->client->shouldReceive('request')->withArgs(function ($method, $url, $options) use ($apiUsername, $apiPassword) {
+        $this->client->shouldReceive('request')->once()->withArgs(function ($method, $url, $options) use ($apiUsername, $apiPassword) {
             $credentials = $options['auth'];
             
             if ($credentials[0] === $apiUsername && $credentials[1] === $apiPassword) {
@@ -146,7 +146,7 @@ class MailjetProviderTest extends TestCase
     {
         $data = $this->getRequestDataFromMailable($this->mailable);
         
-        $this->client->shouldReceive('request')->withArgs(function ($method, $url, $options) use ($data) {
+        $this->client->shouldReceive('request')->once()->withArgs(function ($method, $url, $options) use ($data) {
             $reqData = $options['json'];
             
             if ($method == 'POST' && $url == 'https://api.mailjet.com/v3.1/send' && $reqData == $data) {
@@ -185,22 +185,21 @@ class MailjetProviderTest extends TestCase
         $format = $email->getFormat() == 'html'? 'HTMLPart': 'TextPart';
         $reqParams = [
             'Messages' => [
-                'From' => [
-                    'Email' => $email->getFrom()
-                ],
-                'Sender' => [
-                    'Email' => $email->getFrom()
-                ],
-                'To' => [
-                    ['Email' => $email->getTo()]
-                ],
-                'ReplyTo' => $email->getReplyTo(),
-                'Subject' => $email->getSubject(),
-                $format => $email->getBody(),
-                'CustomID' => $email->getMessageId()
+                [
+                    'From' => [
+                        'Email' => $email->getFrom()
+                    ],
+                    'To' => [
+                        ['Email' => $email->getTo()]
+                    ],
+                    'ReplyTo' => ['Email' => $email->getReplyTo()],
+                    'Subject' => $email->getSubject(),
+                    $format => $email->getBody(),
+                    'CustomID' => "{$email->getMessageId()}"
+                ]
             ]
         ];
-        
+
         return $reqParams;
     }
 }

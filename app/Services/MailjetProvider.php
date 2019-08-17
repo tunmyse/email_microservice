@@ -64,22 +64,21 @@ class MailjetProvider implements MailerProvider
         $format = $email->getFormat() == 'html'? 'HTMLPart': 'TextPart';
         $reqParams = [
             'Messages' => [
-                'From' => [
-                    'Email' => $email->getFrom()
-                ],
-                'Sender' => [
-                    'Email' => $email->getFrom()
-                ],
-                'To' => [
-                    ['Email' => $email->getTo()]
-                ],
-                'ReplyTo' => $email->getReplyTo(),
-                'Subject' => $email->getSubject(),
-                $format => $email->getBody(),
-                'CustomID' => $email->getMessageId()
+                [
+                    'From' => [
+                        'Email' => $email->getFrom()
+                    ],
+                    'To' => [
+                        ['Email' => $email->getTo()]
+                    ],
+                    'ReplyTo' => ['Email' => $email->getReplyTo()],
+                    'Subject' => $email->getSubject(),
+                    $format => $email->getBody(),
+                    'CustomID' => "{$email->getMessageId()}"
+                ]
             ]
         ];
-        
+
         return $reqParams;
     }
     
