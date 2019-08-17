@@ -6,6 +6,7 @@ use App\Contracts\Mailable;
 use App\Email;
 use App\Mail\Message;
 use App\Services\MailerService;
+use Illuminate\Container\RewindableGenerator;
 use InvalidArgumentException;
 use Mockery;
 use Tests\TestCase;
@@ -59,7 +60,6 @@ class MailerServiceTest extends TestCase
         parent::setUp();
 
         $this->email = factory(Email::class)->make();
-        $this->mailable = new Message($this->email->recipients, $this->sender, $this->replyTo, $this->email->subject, $this->email->body, $this->email->format, $this->email->id);
     }
 
     /**
@@ -69,10 +69,12 @@ class MailerServiceTest extends TestCase
     public function ensuresProvidersImplementMailerProvider()
     {
         $mocks = $this->getMocksForProviders(2, '', false, true);
-
+        $generator = $this->getMockGenerator($mocks);
+        
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('All mailer provider services must implement "MailerProvider" interface!');
-        $this->mailerService = new MailerService($mocks, $this->sender, $this->replyTo, $this->defaultProviderName);
+        
+        new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
     }
 
     /**
@@ -82,10 +84,11 @@ class MailerServiceTest extends TestCase
     public function receivesMinimunNumberOfProviders()
     {
         $mocks = $this->getMocksForProviders(1);
-
+        $generator = $this->getMockGenerator($mocks);
+        
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('MailerService requires at least 2 mailer provider services, 1 provided!');
-        $this->mailerService = new MailerService($mocks, $this->sender, $this->replyTo, $this->defaultProviderName);
+        new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
     }
 
     /**
@@ -100,10 +103,10 @@ class MailerServiceTest extends TestCase
         $mocks[2]->shouldNotReceive('sendEmail');
         
         $mocks[] = array_shift($mocks);
-
-        $this->mailerService = new MailerService($mocks, $this->sender, $this->replyTo, $this->defaultProviderName);
-
-        $this->mailerService->sendEmail($this->email);
+        $generator = $this->getMockGenerator($mocks);
+        
+        $mailerService = new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
+        $mailerService->sendEmail($this->email);
     }
         
     /**
@@ -113,8 +116,9 @@ class MailerServiceTest extends TestCase
     public function triesTheNextProviderIfThePreviousFails()
     {
         $mocks = $this->getMocksForProviders(3);
-        $this->mailerService = new MailerService($mocks, $this->sender, $this->replyTo, $this->defaultProviderName);
-        $this->mailerService->sendEmail($this->email);
+        $generator = $this->getMockGenerator($mocks);
+        $mailerService = new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
+        $mailerService->sendEmail($this->email);
     }
     
     /**
@@ -126,9 +130,10 @@ class MailerServiceTest extends TestCase
         $mocks = $this->getMocksForProviders(3);
         $mocks[1]->shouldReceive('sendEmail')->andReturn(true)->ordered();
         $mocks[2]->shouldNotReceive('sendEmail');
+        $generator = $this->getMockGenerator($mocks);
         
-        $this->mailerService = new MailerService($mocks, $this->sender, $this->replyTo, $this->defaultProviderName);
-        $this->mailerService->sendEmail($this->email);
+        $mailerService = new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
+        $mailerService->sendEmail($this->email);
     }
     
     /**
@@ -137,7 +142,7 @@ class MailerServiceTest extends TestCase
      */
     public function callsMailerProviderWithMailable()
     {
-        $mailable = $this->mailable;
+        $mailable = new Message($this->email->recipients, $this->sender, $this->replyTo, $this->email->subject, $this->email->body, $this->email->format, $this->email->id);
         $mocks = $this->getMocksForProviders(4);
         
         foreach ($mocks as $mock) {
@@ -149,8 +154,19 @@ class MailerServiceTest extends TestCase
             })->andReturn(false)->ordered();
         }
         
-        $this->mailerService = new MailerService($mocks, $this->sender, $this->replyTo, $this->defaultProviderName);
-        $this->mailerService->sendEmail($this->email);
+        $generator = $this->getMockGenerator($mocks);
+        
+        $mailerService = new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
+        $mailerService->sendEmail($this->email);
+    }
+    
+    private function getMockGenerator(array $mocks)
+    {
+        return new RewindableGenerator(function () use ($mocks) {
+            foreach ($mocks as $mock) {
+                yield $mock;
+            }
+        }, count($mocks));
     }
     
     public function getMocksForProviders($count = 2, $defaultProviderName = '', $defaultReturn = false, $includeForeign = false)

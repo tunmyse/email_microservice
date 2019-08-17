@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Contracts\MailerProvider;
 use App\Email;
 use App\Mail\Message;
+use Illuminate\Container\RewindableGenerator;
 use InvalidArgumentException;
-use function count;
 
 class MailerService
 {
@@ -39,12 +39,12 @@ class MailerService
      */
     private $providers = [];
 
-    public function __construct(array $mailerProviders, string $from, string $replyTo, string $defaultProviderName)
+    public function __construct(RewindableGenerator $mailerProviders, string $from, string $replyTo, string $defaultProviderName)
     {
         $this->from = $from;
         $this->replyTo = $replyTo;
         $this->defaultProviderName = $defaultProviderName;
-        $numProviders = count($mailerProviders);
+        $numProviders = $mailerProviders->count();
         
         if ($numProviders < 2) {
             throw new InvalidArgumentException(sprintf('MailerService requires at least 2 mailer provider services, %s provided!', $numProviders));
