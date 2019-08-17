@@ -10,7 +10,7 @@ class Message implements Mailable
     /**
      * Email addresses to send emails to
      *
-     * @var string
+     * @var array
      */
     private $to;
     
@@ -67,7 +67,7 @@ class Message implements Mailable
         $this->messageId = $messageId;
     }
 
-    public function getTo()
+    public function getTo(): array
     {
         return $this->to;
     }

@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Contracts\Mailable;
 use App\Email;
 use App\Mail\Message;
+use App\Recipient;
 use App\Services\SendgridProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -85,7 +86,12 @@ class SendgridProviderTest extends TestCase
         $this->provider = new SendgridProvider($this->client, $this->token);
         
         $email = factory(Email::class)->create();
-        $this->mailable = new Message($email->recipients, $this->sender, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
+        $email->recipients()->saveMany(
+            factory(Recipient::class, 3)->make()->all()
+        );
+
+        $recipients = $email->recipients()->pluck('address')->all();
+        $this->mailable = new Message($recipients, $this->sender, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
     }
 
     /**
@@ -173,12 +179,14 @@ class SendgridProviderTest extends TestCase
     
     public function getRequestDataFromMailable(Mailable $email)
     {
+        $formattedRecipients = array_map(function ($email) {
+            return ['email' => $email];
+        }, $email->getTo());
+        
         $reqParams = [
             'personalizations' => [
                 [
-                    'to' => [
-                        ['email' => $email->getTo()]
-                    ]
+                    'to' => $formattedRecipients
                 ]
             ],
             'from' => [

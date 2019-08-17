@@ -41,11 +41,21 @@ class EmailControllerTest extends TestCase
                 422,
                 'validation_error'
             ],
-            'successful request' => [
+            'single recipient request' => [
                 [
                     'subject' => 'Test Subject',
                     'body' => 'This is a test transactional email',
-                    'recipients' => 'recipient@example.test',
+                    'recipients' => ['recipient@example.test'],
+                    'format' => 'html'
+                ],
+                202,
+                'success'
+            ],
+            'multiple recipients request' => [
+                [
+                    'subject' => 'Test Subject',
+                    'body' => 'This is a test transactional email',
+                    'recipients' => ['recipient@example.test', 'recipient2@example.test'],
                     'format' => 'html'
                 ],
                 202,

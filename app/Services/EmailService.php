@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Email;
 use App\Jobs\EmailJob;
+use App\Recipient;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class EmailService
@@ -12,7 +14,7 @@ class EmailService
     private $validation = [
         'subject' => 'required|string',
         'body' => 'required|string',
-        'recipients' => 'required|email',
+        'recipients' => 'required|recipients',
         'format' => 'required|string|in:plain,html,markdown',
     ];
 
@@ -42,11 +44,25 @@ class EmailService
         }
 
         try {
-            $email = Email::create($emailParams);
+            DB::beginTransaction();
+            $email = Email::create([
+                'subject' => $emailParams['subject'],
+                'body' => $emailParams['body'],
+                'format' => $emailParams['format']
+            ]);
+            
+            $email->recipients()->createMany(
+                array_map(function ($email) {
+                    return ['address' => $email];
+                }, $emailParams['recipients'])
+            );
+
             EmailJob::dispatch($email);
+            DB::commit();
             $response['status'] = 'success';
             $response['message'] = 'Your email has been queued and will be sent shortly!';
         } catch (Exception $ex) {
+            DB::rollback();
         }
 
         return $response;

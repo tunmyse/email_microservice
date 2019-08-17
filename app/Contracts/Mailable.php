@@ -8,7 +8,7 @@ interface Mailable
     /**
      * Get the recipients of the email.
      *
-     * @return mixed
+     * @return array
      */
     public function getTo();
     

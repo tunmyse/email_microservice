@@ -5,7 +5,7 @@ namespace Tests\Unit\Services;
 use App\Contracts\Mailable;
 use App\Email;
 use App\Mail\Message;
-use App\Services\MailerService;
+use App\Recipient;
 use App\Services\MailjetProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -93,7 +93,12 @@ class MailjetProviderTest extends TestCase
         $this->provider = new MailjetProvider($this->client, $this->username, $this->password);
         
         $email = factory(Email::class)->create();
-        $this->mailable = new Message($email->recipients, $this->sender, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
+        $email->recipients()->saveMany(
+            factory(Recipient::class, 4)->make()->all()
+        );
+
+        $recipients = $email->recipients()->pluck('address')->all();
+        $this->mailable = new Message($recipients, $this->sender, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
     }
 
     /**
@@ -182,6 +187,10 @@ class MailjetProviderTest extends TestCase
     
     public function getRequestDataFromMailable(Mailable $email)
     {
+        $formattedRecipients = array_map(function ($email) {
+            return ['Email' => $email];
+        }, $email->getTo());
+        
         $format = $email->getFormat() == 'html'? 'HTMLPart': 'TextPart';
         $reqParams = [
             'Messages' => [
@@ -189,9 +198,7 @@ class MailjetProviderTest extends TestCase
                     'From' => [
                         'Email' => $email->getFrom()
                     ],
-                    'To' => [
-                        ['Email' => $email->getTo()]
-                    ],
+                    'To' => $formattedRecipients,
                     'ReplyTo' => ['Email' => $email->getReplyTo()],
                     'Subject' => $email->getSubject(),
                     $format => $email->getBody(),

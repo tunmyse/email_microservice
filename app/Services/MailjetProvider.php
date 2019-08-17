@@ -61,6 +61,10 @@ class MailjetProvider implements MailerProvider
 
     private function buildRequestParam(Mailable $email)
     {
+        $formattedRecipients = array_map(function ($email) {
+            return ['Email' => $email];
+        }, $email->getTo());
+        
         $format = $email->getFormat() == 'html'? 'HTMLPart': 'TextPart';
         $reqParams = [
             'Messages' => [
@@ -68,9 +72,7 @@ class MailjetProvider implements MailerProvider
                     'From' => [
                         'Email' => $email->getFrom()
                     ],
-                    'To' => [
-                        ['Email' => $email->getTo()]
-                    ],
+                    'To' => $formattedRecipients,
                     'ReplyTo' => ['Email' => $email->getReplyTo()],
                     'Subject' => $email->getSubject(),
                     $format => $email->getBody(),

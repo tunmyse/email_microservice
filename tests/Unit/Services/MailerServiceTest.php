@@ -5,16 +5,20 @@ namespace Tests\Unit\Services;
 use App\Contracts\Mailable;
 use App\Email;
 use App\Mail\Message;
+use App\Recipient;
 use App\Services\MailerService;
 use Illuminate\Container\RewindableGenerator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
 use Mockery;
 use Tests\TestCase;
+use function count;
 use function factory;
 
 class MailerServiceTest extends TestCase
 {
-
+    use RefreshDatabase;
+    
     /**
      * @var MailerService
      */
@@ -48,18 +52,14 @@ class MailerServiceTest extends TestCase
      */
     private $email;
 
-    /**
-     * Mailable generated from email model
-     *
-     * @var Mailable
-     */
-    private $mailable;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->email = factory(Email::class)->make();
+        $this->email = factory(Email::class)->create();
+        $this->email->recipients()->saveMany(
+            factory(Recipient::class, 4)->make()->all()
+             );
     }
 
     /**
@@ -142,7 +142,8 @@ class MailerServiceTest extends TestCase
      */
     public function callsMailerProviderWithMailable()
     {
-        $mailable = new Message($this->email->recipients, $this->sender, $this->replyTo, $this->email->subject, $this->email->body, $this->email->format, $this->email->id);
+        $recipients = $this->email->recipients()->pluck('address')->all();
+        $mailable = new Message($recipients, $this->sender, $this->replyTo, $this->email->subject, $this->email->body, $this->email->format, $this->email->id);
         $mocks = $this->getMocksForProviders(4);
         
         foreach ($mocks as $mock) {

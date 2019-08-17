@@ -42,7 +42,7 @@ class EmailServiceTest extends TestCase
         $emailData = [
             'subject' => 'Test Subject',
             'body' => 'This is a test transactional email',
-            'recipients' => 'recipient@example.test',
+            'recipients' => ['recipient@example.test', 'recipient2@example.test'],
             'format' => 'plain'
         ];
 
@@ -51,8 +51,15 @@ class EmailServiceTest extends TestCase
         $this->assertDatabaseHas('emails', [
             'subject' => $emailData['subject'],
             'body' => $emailData['body'],
-            'recipients' => $emailData['recipients'],
             'format' => $emailData['format']
+        ]);
+        
+        $this->assertDatabaseHas('recipients', [
+            'address' => $emailData['recipients'][0]
+        ]);
+        
+        $this->assertDatabaseHas('recipients', [
+            'address' => $emailData['recipients'][1]
         ]);
     }
 
@@ -64,7 +71,7 @@ class EmailServiceTest extends TestCase
         $emailData = [
             'subject' => 'Test Subject',
             'body' => 'This is a test transactional email',
-            'recipients' => 'recipient@example.test',
+            'recipients' => ['recipient@example.test'],
             'format' => 'plain'
         ];
                 

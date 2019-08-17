@@ -79,7 +79,8 @@ class MailerService
 
     private function buildMailableFromModel(Email $email)
     {
-        return new Message($email->recipients, $this->from, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
+        $recipients = $email->recipients()->pluck('address')->all();
+        return new Message($recipients, $this->from, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
     }
 
     private function isDefaultProvider(MailerProvider $provider)
