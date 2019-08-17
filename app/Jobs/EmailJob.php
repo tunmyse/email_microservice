@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Email;
+use App\Services\MailerService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,8 +31,8 @@ class EmailJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(MailerService $mailer)
     {
-        //
+        $mailer->sendEmail($this->email);
     }
 }
