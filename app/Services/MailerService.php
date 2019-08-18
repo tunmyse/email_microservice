@@ -6,6 +6,8 @@ use App\Contracts\MailerProvider;
 use App\Email;
 use App\Mail\Message;
 use Illuminate\Container\RewindableGenerator;
+use Illuminate\Mail\Markdown;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class MailerService
@@ -38,7 +40,7 @@ class MailerService
      * @var array
      */
     private $providers = [];
-
+        
     public function __construct(RewindableGenerator $mailerProviders, string $from, string $replyTo, string $defaultProviderName)
     {
         $this->from = $from;
@@ -80,7 +82,15 @@ class MailerService
     private function buildMailableFromModel(Email $email)
     {
         $recipients = $email->recipients()->pluck('address')->all();
-        return new Message($recipients, $this->from, $this->replyTo, $email->subject, $email->body, $email->format, $email->id);
+        $format = $email->format;
+        $body = $email->body;
+        
+        if ($format == 'markdown') {
+            $body = Markdown::parse($body)->toHtml();
+            $format = 'html';
+        }
+        
+        return new Message($recipients, $this->from, $this->replyTo, $email->subject, $body, $format, $email->id);
     }
 
     private function isDefaultProvider(MailerProvider $provider)

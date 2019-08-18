@@ -161,6 +161,36 @@ class MailerServiceTest extends TestCase
         $mailerService->sendEmail($this->email);
     }
     
+    /**
+     *
+     * @test
+     */
+    public function parsesMarkdownTextBeforeSending()
+    {
+        $markdownEmail = factory(Email::class)->create(['format' => 'markdown', 'body' => '## Email Microservice']);
+        $markdownEmail->recipients()->saveMany(
+            factory(Recipient::class, 1)->make()->all()
+             );
+        
+        $recipients = $markdownEmail->recipients()->pluck('address')->all();
+        $mailable = new Message($recipients, $this->sender, $this->replyTo, $this->email->subject, '<h2>Email Microservice</h2> ', 'html', $this->email->id);
+        $mocks = $this->getMocksForProviders(4);
+        
+        foreach ($mocks as $mock) {
+            $mock->shouldReceive('sendEmail')->withArgs(function (Mailable $email) use ($mailable) {
+                if ($email == $mailable) {
+                    return true;
+                }
+                return false;
+            })->andReturn(false)->ordered();
+        }
+        
+        $generator = $this->getMockGenerator($mocks);
+        
+        $mailerService = new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
+        $mailerService->sendEmail($this->email);
+    }
+    
     private function getMockGenerator(array $mocks)
     {
         return new RewindableGenerator(function () use ($mocks) {

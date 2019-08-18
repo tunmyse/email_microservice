@@ -17,7 +17,7 @@ class CreateEmailsTable extends Migration
             $table->bigIncrements('id');
             $table->string('subject');
             $table->text('body');
-            $table->enum('format', ['plain', 'html']);
+            $table->enum('format', ['plain', 'html', 'markdown']);
             $table->timestamps();
         });
     }
