@@ -5,6 +5,7 @@ namespace Tests\Feature\Http\Controllers;
 use App\Email;
 use App\Recipient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 use function factory;
 
@@ -18,6 +19,7 @@ class EmailControllerTest extends TestCase
      */
     public function testSendEmail($requestData, $statusCode, $status)
     {
+        Queue::fake();
         $response = $this->json('POST', '/api/sendemail', $requestData);
 
         $response

@@ -39,6 +39,8 @@ class EmailServiceTest extends TestCase
      */
     public function savesEmailToDatabase()
     {
+        Queue::fake();
+        
         $emailData = [
             'subject' => 'Test Subject',
             'body' => 'This is a test transactional email',
