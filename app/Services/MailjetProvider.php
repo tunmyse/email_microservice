@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Contracts\Mailable;
 use App\Contracts\MailerProvider;
+use App\Mail\DefaultEmailEvent;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
+use Iterator;
 
 class MailjetProvider implements MailerProvider
 {
@@ -82,6 +84,21 @@ class MailjetProvider implements MailerProvider
         ];
 
         return $reqParams;
+    }
+
+    public function processMailEvents(array $events): Iterator
+    {
+        $providerName = $this->getProviderName();
+        
+        return (function () use ($events, $providerName) {
+            foreach ($events as $event) {
+                if (empty($event['CustomID'])) {
+                    continue;
+                }
+                
+                yield new DefaultEmailEvent($event['email'], $event['event'], $event['CustomID'], $providerName);
+            }
+        })();
     }
     
     public function getProviderName(): string

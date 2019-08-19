@@ -4,11 +4,13 @@ namespace Tests\Unit\Services;
 
 use App\Contracts\Mailable;
 use App\Email;
+use App\Mail\DefaultEmailEvent;
 use App\Mail\Message;
 use App\Recipient;
 use App\Services\MailjetProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
+use Iterator;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -183,6 +185,58 @@ class MailjetProviderTest extends TestCase
         $this->response->shouldReceive('getStatusCode')->andReturn(500);
         
         $this->assertFalse($this->provider->sendEmail($this->mailable));
+    }
+    
+    /**
+     *
+     * @test
+     */
+    public function returnsIteratorForMailEvents()
+    {
+        $this->assertInstanceOf(Iterator::class, $this->provider->processMailEvents([]));
+    }
+    
+    /**
+     *
+     * @test
+     */
+    public function returnsValidMailEventsObjects()
+    {
+        $sampleEvents = [
+            [
+                'event' => 'sent',
+                'time' => 1566232458,
+                'MessageID' => 0,
+                'email' => 'test@example.com',
+                'mj_message_id' => '',
+                'smtp_reply' => '',
+                'CustomID' => '6'
+            ],
+            [
+                'event' => 'sent',
+                'time' => 1566232458,
+                'MessageID' => 0,
+                'email' => 'test2@example.com',
+                'mj_message_id' => '',
+                'smtp_reply' => '',
+            ]
+        ];
+        
+        $iterator = $this->provider->processMailEvents($sampleEvents);
+
+        $count = 0;
+        $mailEvents = [];
+        
+        foreach ($iterator as $event) {
+            $mailEvents[] = $event;
+            $count++;
+        }
+        
+        $validEvent = $sampleEvents[0];
+        $this->assertEquals(1, $count);
+        
+        $processedEvent = new DefaultEmailEvent($validEvent['email'], $validEvent['event'], $validEvent['CustomID'], 'mailjet');
+        $this->assertEquals($mailEvents[0], $processedEvent);
     }
     
     public function getRequestDataFromMailable(Mailable $email)

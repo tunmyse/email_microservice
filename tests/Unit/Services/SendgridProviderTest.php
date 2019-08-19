@@ -4,11 +4,13 @@ namespace Tests\Unit\Services;
 
 use App\Contracts\Mailable;
 use App\Email;
+use App\Mail\DefaultEmailEvent;
 use App\Mail\Message;
 use App\Recipient;
 use App\Services\SendgridProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
+use Iterator;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -175,6 +177,57 @@ class SendgridProviderTest extends TestCase
         $this->response->shouldReceive('getStatusCode')->andReturn(500);
         
         $this->assertFalse($this->provider->sendEmail($this->mailable));
+    }
+    
+    
+    /**
+     *
+     * @test
+     */
+    public function returnsIteratorForMailEvents()
+    {
+        $this->assertInstanceOf(Iterator::class, $this->provider->processMailEvents([]));
+    }
+    
+    /**
+     *
+     * @test
+     */
+    public function returnsValidMailEventsObjects()
+    {
+        $sampleEvents = [
+            [
+                'attempt' => '2',
+                'email' => 'test@example.com',
+                'event' => 'deferred',
+                'timestamp' => 1566153660,
+                'tls' => 1,
+                'app_message_id' => '4'
+            ],
+            [
+                'attempt' => '0',
+                'email' => 'test2@example.com',
+                'event' => 'deferred',
+                'timestamp' => 1566153660,
+                'tls' => 1
+            ]
+        ];
+
+        $iterator = $this->provider->processMailEvents($sampleEvents);
+
+        $count = 0;
+        $mailEvents = [];
+        
+        foreach ($iterator as $event) {
+            $mailEvents[] = $event;
+            $count++;
+        }
+        
+        $validEvent = $sampleEvents[0];
+        $this->assertEquals(1, $count);
+        
+        $processedEvent = new DefaultEmailEvent($validEvent['email'], $validEvent['event'], $validEvent['app_message_id'], 'sendgrid');
+        $this->assertEquals($mailEvents[0], $processedEvent);
     }
     
     public function getRequestDataFromMailable(Mailable $email)

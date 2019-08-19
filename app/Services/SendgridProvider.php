@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Contracts\Mailable;
 use App\Contracts\MailerProvider;
+use App\Mail\DefaultEmailEvent;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use InvalidArgumentException;
+use Iterator;
 
 class SendgridProvider implements MailerProvider
 {
@@ -86,6 +88,21 @@ class SendgridProvider implements MailerProvider
         ];
 
         return $reqParams;
+    }
+    
+    public function processMailEvents(array $events): Iterator
+    {
+        $providerName = $this->getProviderName();
+        
+        return (function () use ($events, $providerName) {
+            foreach ($events as $event) {
+                if (empty($event['app_message_id'])) {
+                    continue;
+                }
+                
+                yield new DefaultEmailEvent($event['email'], $event['event'], $event['app_message_id'], $providerName);
+            }
+        })();
     }
     
     public function getProviderName(): string

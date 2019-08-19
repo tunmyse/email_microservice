@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Contracts\EmailEvent;
 use App\Email;
 use App\Jobs\EmailJob;
-use App\Recipient;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Iterator;
 
 class EmailService
 {
@@ -66,5 +68,24 @@ class EmailService
         }
 
         return $response;
+    }
+    
+    public function updateStatusFromEvent(Iterator $events)
+    {
+        $query = 'REPLACE INTO recipients (email_id, address, status, provider) VALUES %s;';
+        $entryTemplate = '(?, ?, ?, ?)';
+        $updateList = [];
+        $updateValues = [];
+        
+        /** @var EmailEvent $event */
+        foreach ($events as $event) {
+            $updateList[] = $entryTemplate;
+            $updateValues[] = $event->getMessageId();
+            $updateValues[] = $event->getEmail();
+            $updateValues[] = $event->getStatus();
+            $updateValues[] = $event->getProviderName();
+        }
+                
+        return DB::statement(sprintf($query, implode(',', $updateList)), $updateValues);
     }
 }

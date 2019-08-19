@@ -191,6 +191,20 @@ class MailerServiceTest extends TestCase
         $mailerService->sendEmail($this->email);
     }
     
+    /**
+     *
+     * @test
+     */
+    public function returnsCorrectMailerProvider()
+    {
+        $mocks = $this->getMocksForProviders(3);
+        $generator = $this->getMockGenerator($mocks);
+        
+        $mailer = new MailerService($generator, $this->sender, $this->replyTo, $this->defaultProviderName);
+        $mailerProvider = $mailer->getMailerProvider($mocks[0]->getProviderName());
+        $this->assertSame($mocks[0], $mailerProvider);
+    }
+
     private function getMockGenerator(array $mocks)
     {
         return new RewindableGenerator(function () use ($mocks) {

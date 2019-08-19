@@ -6,7 +6,9 @@ use App\Email;
 use App\Http\Resources\EmailResource;
 use App\Http\Resources\RecipientResource;
 use App\Services\EmailService;
+use App\Services\MailerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class EmailController extends Controller
@@ -54,5 +56,22 @@ class EmailController extends Controller
         }
 
         return Response::json($response, $statusCode);
+    }
+    
+    /**
+     * Webhook to receive email events from mailer providers.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
+    public function webhook(Request $request, MailerService $mailerService, EmailService $emailService, string $provider)
+    {
+        $mailerProvider = $mailerService->getMailerProvider($provider);
+        $events = $mailerProvider->processMailEvents($request->all());
+        
+        $response = $emailService->updateStatusFromEvent($events);
+        if ($response['status'] == 'success') {
+            return Response::json([], 200);
+        }
     }
 }

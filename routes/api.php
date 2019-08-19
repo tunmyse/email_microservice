@@ -20,3 +20,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/sendemail', 'EmailController@send');
 Route::get('/email', 'EmailController@index');
 Route::get('/recipient/{emailId}', 'EmailController@emailRecipients');
+Route::post('/webhook/{provider}', 'EmailController@webhook');

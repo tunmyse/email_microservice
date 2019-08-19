@@ -20,6 +20,7 @@ class CreateRecipientsTable extends Migration
             $table->string('status')->default('queued');
             $table->string('provider')->nullable();
             $table->timestamps();
+            $table->unique(['email_id', 'address']);
         });
     }
 

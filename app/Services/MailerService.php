@@ -9,6 +9,7 @@ use Illuminate\Container\RewindableGenerator;
 use Illuminate\Mail\Markdown;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use RuntimeException;
 
 class MailerService
 {
@@ -40,6 +41,13 @@ class MailerService
      * @var array
      */
     private $providers = [];
+
+    /**
+     *  Mapping of provider name and index
+     *
+     * @var array
+     */
+    private $providerNameMap = [];
         
     public function __construct(RewindableGenerator $mailerProviders, string $from, string $replyTo, string $defaultProviderName)
     {
@@ -58,8 +66,10 @@ class MailerService
             }
 
             if ($this->isDefaultProvider($provider)) {
+                array_unshift($this->providerNameMap, $provider->getProviderName());
                 array_unshift($this->providers, $provider);
             } else {
+                array_push($this->providerNameMap, $provider->getProviderName());
                 array_push($this->providers, $provider);
             }
         }
@@ -93,6 +103,17 @@ class MailerService
         return new Message($recipients, $this->from, $this->replyTo, $email->subject, $body, $format, $email->id);
     }
 
+    public function getMailerProvider(string $providerName)
+    {
+        $index = array_search($providerName, $this->providerNameMap);
+        
+        if ($index === false) {
+            throw new RuntimeException("No provider exists for the specified provider name!");
+        }
+        
+        return $this->providers[$index];
+    }
+    
     private function isDefaultProvider(MailerProvider $provider)
     {
         return $this->defaultProviderName == $provider->getProviderName();
