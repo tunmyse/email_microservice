@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Email;
+use App\Http\Resources\EmailResource;
+use App\Http\Resources\RecipientResource;
 use App\Services\EmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
@@ -16,6 +19,18 @@ class EmailController extends Controller
      */
     public function index()
     {
+        return EmailResource::collection(Email::orderBy('id', 'desc')->get());
+    }
+    
+    /**
+     * Get the recipients of an email message.
+     *
+     * @return Response
+     */
+    public function emailRecipients($emailId)
+    {
+        $email = Email::find($emailId);
+        return RecipientResource::collection($email->recipients);
     }
 
     /**
