@@ -18,7 +18,7 @@
             <td class="text-truncate">{{ email.body }}</td>
             <td>{{ email.format }}</td>
             <td>
-              <button class="btn btn-secondary" v-on:click="viewStatus(index)">View Status</button>
+              <button class="btn btn-secondary" v-on:click="viewStatus(index)">View Details</button>
             </td>
           </tr>
         </tbody>
