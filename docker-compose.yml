@@ -15,9 +15,12 @@ services:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
     working_dir: /var/www
+    command: ["php-fpm"]
     depends_on:
         - mysql
         - redis
+    volumes:
+      - ./:/var/www
     networks:
       - app-network
 
@@ -76,12 +79,15 @@ services:
 
   #Queue Worker Service
   queue_worker:
-    image: tunmyse/email_service
+    build:
+      context: ./supervisord
+      dockerfile: Dockerfile
     container_name: queue_worker
     init: true
     restart: unless-stopped
     tty: true
-    command: ["php", "artisan", "queue:work", "redis", "--timeout=60", "--sleep=5"]
+    volumes:
+      - ./:/var/www
     depends_on:
         - mysql
         - redis
