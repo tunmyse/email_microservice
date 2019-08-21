@@ -43,6 +43,9 @@ RUN usermod -u 1000 www-data
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www
 
+# Install dependencies 
+RUN composer install --no-dev && php artisan key:generate
+
 # Change current user to www
 USER www-data
 
