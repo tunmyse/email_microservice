@@ -1763,12 +1763,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
     console.log("List component mounted.");
-    axios.get('/api/email').then(function (res) {
+    axios.get("/api/email").then(function (res) {
       _this.emails = res.data.data;
     });
   },
@@ -38073,37 +38078,49 @@ var render = function() {
         _vm._v(" "),
         _c(
           "tbody",
-          _vm._l(_vm.emails, function(email, index) {
-            return _c("tr", [
-              _c("th", { attrs: { scope: "row" } }, [
-                _vm._v(_vm._s(index + 1))
-              ]),
-              _vm._v(" "),
-              _c("td", [_vm._v(_vm._s(email.subject))]),
-              _vm._v(" "),
-              _c("td", { staticClass: "text-truncate" }, [
-                _vm._v(_vm._s(email.body))
-              ]),
-              _vm._v(" "),
-              _c("td", [_vm._v(_vm._s(email.format))]),
-              _vm._v(" "),
-              _c("td", [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-secondary",
-                    on: {
-                      click: function($event) {
-                        return _vm.viewStatus(index)
+          [
+            _vm._l(_vm.emails, function(email, index) {
+              return _c("tr", [
+                _c("th", { attrs: { scope: "row" } }, [
+                  _vm._v(_vm._s(index + 1))
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(email.subject))]),
+                _vm._v(" "),
+                _c("td", { staticClass: "text-truncate" }, [
+                  _vm._v(_vm._s(email.body))
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(email.format))]),
+                _vm._v(" "),
+                _c("td", [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-secondary",
+                      on: {
+                        click: function($event) {
+                          return _vm.viewStatus(index)
+                        }
                       }
-                    }
-                  },
-                  [_vm._v("View Details")]
-                )
+                    },
+                    [_vm._v("View Details")]
+                  )
+                ])
               ])
-            ])
-          }),
-          0
+            }),
+            _vm._v(" "),
+            _vm.emails.length == 0
+              ? _c("tr", [
+                  _c("td", { attrs: { colspan: "5" } }, [
+                    _vm._v(
+                      "\n            You have not sent any email using this microservice!\n          "
+                    )
+                  ])
+                ])
+              : _vm._e()
+          ],
+          2
         )
       ])
     ])
@@ -53773,15 +53790,14 @@ __webpack_require__.r(__webpack_exports__);
 /*!**********************************************************!*\
   !*** ./resources/js/components/EmailStatusComponent.vue ***!
   \**********************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EmailStatusComponent_vue_vue_type_template_id_07bd414c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EmailStatusComponent.vue?vue&type=template&id=07bd414c& */ "./resources/js/components/EmailStatusComponent.vue?vue&type=template&id=07bd414c&");
 /* harmony import */ var _EmailStatusComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EmailStatusComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/EmailStatusComponent.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _EmailStatusComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _EmailStatusComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -53811,7 +53827,7 @@ component.options.__file = "resources/js/components/EmailStatusComponent.vue"
 /*!***********************************************************************************!*\
   !*** ./resources/js/components/EmailStatusComponent.vue?vue&type=script&lang=js& ***!
   \***********************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53843,15 +53859,14 @@ __webpack_require__.r(__webpack_exports__);
 /*!********************************************************!*\
   !*** ./resources/js/components/SendEmailComponent.vue ***!
   \********************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SendEmailComponent_vue_vue_type_template_id_596f9b94___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SendEmailComponent.vue?vue&type=template&id=596f9b94& */ "./resources/js/components/SendEmailComponent.vue?vue&type=template&id=596f9b94&");
 /* harmony import */ var _SendEmailComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SendEmailComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/SendEmailComponent.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _SendEmailComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _SendEmailComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -53881,7 +53896,7 @@ component.options.__file = "resources/js/components/SendEmailComponent.vue"
 /*!*********************************************************************************!*\
   !*** ./resources/js/components/SendEmailComponent.vue?vue&type=script&lang=js& ***!
   \*********************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

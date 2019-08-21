@@ -21,6 +21,11 @@
               <button class="btn btn-secondary" v-on:click="viewStatus(index)">View Details</button>
             </td>
           </tr>
+          <tr v-if="emails.length == 0">
+            <td colspan="5">
+              You have not sent any email using this microservice!
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -31,9 +36,9 @@
 export default {
   mounted() {
     console.log("List component mounted.");
-    axios.get('/api/email').then((res)=>{
-          this.emails = res.data.data;
-      });
+    axios.get("/api/email").then(res => {
+      this.emails = res.data.data;
+    });
   },
 
   data() {
@@ -46,7 +51,7 @@ export default {
 
   methods: {
     viewStatus: function(index) {
-        console.log(this.emails)
+      console.log(this.emails);
       this.$router.push({
         name: "status",
         params: {
