@@ -19,8 +19,6 @@ services:
     depends_on:
         - mysql
         - redis
-    volumes:
-      - ./:/var/www
     networks:
       - app-network
 
@@ -85,8 +83,6 @@ services:
     init: true
     restart: unless-stopped
     tty: true
-    volumes:
-      - ./:/var/www
     depends_on:
         - mysql
         - redis
